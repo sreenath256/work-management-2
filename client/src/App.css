@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+
+@font-face{
+  src: url(assets/fonts/Satoshi-Light.woff2) format(woff2);
+  font-family: "satoshi-light";
+  font-display: swap;
+}
+@font-face{
+  src: url(assets/fonts/Satoshi-Medium.woff2) format(woff2);
+  font-family: "satoshi-medium";
+  font-display: swap;
+}
+@font-face{
+  src: url(assets/fonts/Figtree-Regular.woff2) format(woff2);
+  font-family: "satoshi-regular";
+  font-display: swap;
+}
+@font-face{
+  src: url(assets/fonts/Figtree-SemiBold.woff2) format(woff2);
+  font-family: "satoshi-semibold";
+  font-display: swap;
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+  /* overflow-y: hidden; */
+}
+
+body {
+  color: black;
+  font-family: "satoshi-regular", sans-serif;
+  /* overflow-y: hidden; */
+  background-color: black;
+}
+
+td,th{
+  padding: 0 10px;
+}
+
+.no-scrollbar::-webkit-scrollbar{
+  display:"none";
+}
+
+.no-scrollbar{
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Target the textarea inside the InputEmoji component */
+.react-input-emoji--container {
+  max-height: 2.8rem;
+  height: 2.8rem;
+  min-height: 2.8rem;
+  overflow-y: auto;
+}
+
+::-webkit-scrollbar{
+width: 5px;
+background: rgb(244, 244, 244);
+}
+::-webkit-scrollbar-thumb{
+background:#4b464b;
+border-radius: 6px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+background:linear-gradient(to bottom,#AFFE00, #67910b);
+cursor: pointer;
+}
+
+.projectscl::-webkit-scrollbar{
+  width: 0px;
+  background: black;
+}
