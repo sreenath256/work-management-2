@@ -9,8 +9,9 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { configKeys } from "./api/config";
 import { fetchActiveBanner } from "./api/apiConnections/userConnections";
 import { activeBannerAtom } from "./recoil/atoms/settingsAtom";
+import AttendanceDashboard from "./pages/AttendanceDashboard";
 
-const Attendance = lazy(() => import("./pages/Attendance"));
+// const AttendanceDashBoard = lazy(() => import("./pages/AttendanceDashboard"));
 const ClientWorks = lazy(() => import("./pages/ClientWorks"));
 const Clients = lazy(() => import("./pages/Clients"));
 const Home = lazy(() => import("./pages/Home"));
@@ -117,7 +118,7 @@ function App() {
                 </p>
               }
             >
-              {token ? <Attendance /> : <SignInSignUp />}
+              {token ? <AttendanceDashboard /> : <SignInSignUp />}
             </Suspense>
           ),
         },

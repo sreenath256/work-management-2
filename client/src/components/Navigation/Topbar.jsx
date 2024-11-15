@@ -986,7 +986,7 @@ const Topbar = () => {
     <div className="p-3 bg-white fixed top-0 z-50 w-full flex items-center justify-between">
       <div className="flex items-center gap-2">
         <img className="h-7 w-7 object-cover" src={Mainlogo} alt="" />
-        <h1 className="text-base font-normal">work management</h1>
+        <h1 className="text-base font-normal">Work Management</h1>
       </div>
       <div className="flex gap-5 items-center">
         <button

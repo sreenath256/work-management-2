@@ -13,6 +13,8 @@ const attendanceRoute = () => {
     router.post('/punchOutUser',punchInController.punchOutUser)
     router.post('/checkTodayPunchOutStatus',punchInController.checkTodayPunchOutStatus)
 
+    router.get('/getTodayAttendance',punchInController.getTodayAttendance)
+
 
    
 

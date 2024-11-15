@@ -7,13 +7,13 @@ const punchInControllers = () => {
 
     const punchInUser = async (req, res) => {
 
-        
+
         try {
             const userId = req.payload.id
             const { latitude, longitude } = req.body;
 
             console.log(latitude, longitude);
-            
+
             const companyLocation = { latitude: process.env.COMPANY_LOCATION_LATITUDE, longitude: process.env.COMPANY_LOCATION_LONGITUDE };
 
             const today = new Date().toISOString().slice(0, 10); // Get the current date in YYYY-MM-DD format
@@ -27,7 +27,7 @@ const punchInControllers = () => {
 
             // If there is already punch-in record, the user cant't punch in
             if (latestPunchInRecord) {
-                
+
                 return res.status(400).json({ error: 'You are already punched in.' });
             }
 
@@ -80,7 +80,7 @@ const punchInControllers = () => {
         try {
             const userId = req.payload.id;
             const today = new Date().toISOString().slice(0, 10); // Get current date in YYYY-MM-DD format
-    
+
             // Find today's punch-in record for the user
             const todayPunchRecord = await PunchInRecord.findOne({
                 userId,
@@ -89,7 +89,7 @@ const punchInControllers = () => {
                     $lte: new Date(today + 'T23:59:59.999Z')
                 }
             });
-    
+
             if (!todayPunchRecord) {
                 return res.status(200).json({
                     status: true,
@@ -97,7 +97,7 @@ const punchInControllers = () => {
                     message: "No punch-in record found for today"
                 });
             }
-    
+
             // If record exists, format and return the data
             return res.status(200).json({
                 status: true,
@@ -110,7 +110,7 @@ const punchInControllers = () => {
                     timeElapsed: Math.round((new Date() - new Date(todayPunchRecord.punchInTime)) / (1000 * 60)) // minutes elapsed since punch-in
                 }
             });
-    
+
         } catch (error) {
             console.log(error);
             return res.status(500).json({
@@ -207,7 +207,7 @@ const punchInControllers = () => {
         try {
             const userId = req.payload.id;
             const today = new Date().toISOString().slice(0, 10); // Get current date in YYYY-MM-DD format
-    
+
             // Find today's punch-in record for the user
             const todayPunchRecord = await PunchOutRecord.findOne({
                 userId,
@@ -216,7 +216,7 @@ const punchInControllers = () => {
                     $lte: new Date(today + 'T23:59:59.999Z')
                 }
             });
-    
+
             if (!todayPunchRecord) {
                 return res.status(200).json({
                     status: true,
@@ -224,7 +224,7 @@ const punchInControllers = () => {
                     message: "No punch-out record found for today"
                 });
             }
-    
+
             // If record exists, format and return the data
             return res.status(200).json({
                 status: true,
@@ -237,10 +237,95 @@ const punchInControllers = () => {
                     timeElapsed: Math.round((new Date() - new Date(todayPunchRecord.punchOutTime)) / (1000 * 60)) // minutes elapsed since punch-in
                 }
             });
-    
+
         } catch (error) {
             console.log(error);
             return res.status(500).json({
+                status: false,
+                message: "Internal server error",
+                error: error.message
+            });
+        }
+    };
+
+
+    const getTodayAttendance = async (req, res) => {
+
+        console.log("From ");
+        
+        try {
+            // Get today's date range
+            const today = new Date().toISOString().slice(0, 10);
+            const startOfDay = new Date(today + 'T00:00:00.000Z');
+            const endOfDay = new Date(today + 'T23:59:59.999Z');
+    
+            // Get all punch-in records for today
+            const punchInRecords = await PunchInRecord.find({
+                punchInTime: {
+                    $gte: startOfDay,
+                    $lte: endOfDay
+                }
+            })
+            .populate('userId', 'userName email profilePhotoURL') // Populate user details - adjust fields as needed
+            .sort({ punchInTime: -1 });
+    
+            // Get all punch-out records for today
+            const punchOutRecords = await PunchOutRecord.find({
+                punchOutTime: {
+                    $gte: startOfDay,
+                    $lte: endOfDay
+                }
+            }).lean();
+    
+            // Create a map of punch-out records by userId for easier lookup
+            const punchOutMap = new Map(
+                punchOutRecords.map(record => [record.userId.toString(), record])
+            );
+    
+            // Combine punch-in and punch-out records
+            const combinedRecords = punchInRecords.map(punchIn => {
+                const punchInObj = punchIn.toObject();
+                const punchOut = punchOutMap.get(punchInObj.userId._id.toString());
+    
+                return {
+                    userId: punchInObj.userId._id,
+                    userName: punchInObj.userId.userName,
+                    profilePhotoURL: punchInObj.userId.profilePhotoURL,
+                    email: punchInObj.userId.email,
+                    punchInTime: punchInObj.punchInTime,
+                    punchInLocation: punchInObj.punchInLocation,
+                    distance: punchInObj.distance,
+                    punchOutTime: punchOut?.punchOutTime || null,
+                    punchOutLocation: punchOut?.punchOutLocation || null,
+                    status: punchOut ? 'completed' : 'active',
+                    workingHours: punchOut ? 
+                        ((new Date(punchOut.punchOutTime) - new Date(punchInObj.punchInTime)) / (1000 * 60 * 60)).toFixed(2) 
+                        : null
+                };
+            });
+    
+            // Calculate summary statistics
+            const summary = {
+                totalRecords: combinedRecords.length,
+                activeEmployees: combinedRecords.filter(record => record.status === 'active').length,
+                completedShifts: combinedRecords.filter(record => record.status === 'completed').length,
+                averageWorkingHours: combinedRecords
+                    .filter(record => record.workingHours)
+                    .reduce((acc, curr) => acc + parseFloat(curr.workingHours), 0) / 
+                    combinedRecords.filter(record => record.workingHours).length || 0
+            };
+    
+            res.status(200).json({
+                status: true,
+                data: {
+                    records: combinedRecords,
+                    summary
+                }
+            });
+    
+        } catch (error) {
+            console.error('Error in getTodayAttendance:', error);
+            res.status(500).json({
                 status: false,
                 message: "Internal server error",
                 error: error.message
@@ -255,7 +340,9 @@ const punchInControllers = () => {
         punchInUser,
         punchOutUser,
         checkTodayPunchInStatus,
-        checkTodayPunchOutStatus
+        checkTodayPunchOutStatus,
+        getTodayAttendance
+        
 
     }
 }

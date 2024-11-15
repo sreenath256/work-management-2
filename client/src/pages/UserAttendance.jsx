@@ -4,15 +4,19 @@ import PunchOutButton from "../components/Button/PunchOutButton";
 import baseURL from "../api/baseURL";
 import Loader from "../components/Loader/Loader";
 import { toast } from "react-toastify";
-import UserDashboard from "../components/Attendance/UserDashboard";
+import { userDataAtom } from "../recoil/atoms/userAtoms";
+import { useRecoilState } from "recoil";
+import AttendanceSummary from "../components/Attendance/AttendanceSummary";
 
-const Attendance = () => {
+const UserAttendance = () => {
   const [location, setLocation] = useState(null);
   const [buttonLoading, setButtonLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [isPunchedIn, setIsPunchedIn] = useState(false);
   const [isPunchedOut, setIsPunchedOut] = useState(false);
   const [flag, setFlag] = useState(false);
+
+  const [user, setUser] = useRecoilState(userDataAtom);
 
   // Fixed: Define reload as a function instead of a constant assignment
   const reload = () => setFlag((prev) => !prev);
@@ -85,14 +89,18 @@ const Attendance = () => {
       const currentLocation = await getCurrentLocation();
       console.log(currentLocation);
 
-      const punchInResponse = await baseURL.post(
-        "/attendance/punchInUser",
-        currentLocation
-      );
-      console.log(punchInResponse);
+      setTimeout(async () => {
+        const punchInResponse = await baseURL.post(
+          "/attendance/punchInUser",
+          currentLocation
+        );
+        console.log(punchInResponse);
 
-      setLocation(currentLocation);
-      reload(); // Call the reload function instead of directly setting state
+        setLocation(currentLocation);
+        toast.success("Punch in successs");
+
+        reload(); // Call the reload function instead of directly setting state
+      }, 3000);
     } catch (err) {
       toast.error(err.response.data.error);
       console.error("Error during punch-in:", err);
@@ -107,14 +115,18 @@ const Attendance = () => {
       const currentLocation = await getCurrentLocation();
       console.log(currentLocation);
 
-      const punchOutResponse = await baseURL.post(
-        "/attendance/punchOutUser",
-        currentLocation
-      );
-      console.log(punchOutResponse);
+      setTimeout(async () => {
+        const punchOutResponse = await baseURL.post(
+          "/attendance/punchOutUser",
+          currentLocation
+        );
+        console.log(punchOutResponse);
 
-      setLocation(currentLocation);
-      reload(); // Call the reload function instead of directly setting state
+        setLocation(currentLocation);
+        toast.success("Punch out successs");
+
+        reload(); // Call the reload function instead of directly setting state
+      }, 3000);
     } catch (err) {
       toast.error(err.response.data.error);
       console.error("Error during punch-out:", err);
@@ -129,7 +141,7 @@ const Attendance = () => {
 
   return (
     <div className="mt-20 mr-1 mb-1 p-5 w-full h-[calc(100vh-5.75rem)] overflow-y-hidden">
-      <UserDashboard />
+      <AttendanceSummary />
 
       {!isPunchedIn ? (
         <div
@@ -150,4 +162,4 @@ const Attendance = () => {
   );
 };
 
-export default Attendance;
+export default UserAttendance;
