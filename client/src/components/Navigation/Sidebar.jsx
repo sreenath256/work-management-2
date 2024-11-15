@@ -100,6 +100,15 @@ const Sidebar = () => {
               Clients
             </li>
             <li
+              onClick={() => navigation("/attendance")}
+              className={`hover:text-black hover:bg-[#aefe007e]  px-2 p-1 rounded-md ${
+                pathname === "/attendance" &&
+                "text-black bg-maingreen hover:bg-maingreenhvr"
+              }`}
+            >
+              Attendance
+            </li>
+            <li
               onClick={getProjects}
               className={`hover:text-black hover:bg-[#aefe007e]  px-2 p-1 rounded-md relative ${
                 pathname === "/projects" &&

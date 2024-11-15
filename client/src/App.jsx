@@ -9,20 +9,20 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { configKeys } from "./api/config";
 import { fetchActiveBanner } from "./api/apiConnections/userConnections";
 import { activeBannerAtom } from "./recoil/atoms/settingsAtom";
-import ClientWorks from "./pages/ClientWorks";
-import Clients from "./pages/Clients";
 
+const Attendance = lazy(() => import("./pages/Attendance"));
+const ClientWorks = lazy(() => import("./pages/ClientWorks"));
+const Clients = lazy(() => import("./pages/Clients"));
 const Home = lazy(() => import("./pages/Home"));
 const MyWorks = lazy(() => import("./pages/MyWorks"));
 const TodaysWork = lazy(() => import("./pages/TodaysWork"));
-const Work = lazy(() => import("./pages/Worck"));
+const Work = lazy(() => import("./pages/Work"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Settings = lazy(() => import("./pages/Settings"));
 const SignInSignUp = lazy(() => import("./pages/SignInSignUp"));
 const Projects = lazy(() => import("./pages/Projects"));
 const UserPermissions = lazy(() => import("./pages/UserPermissions"));
 const Error = lazy(() => import("./pages/ErrorPage"));
-const AddClients = lazy(() => import("./pages/AddClients"));
 
 const Layout = () => {
   const [activeBanner, setActiveBanner] = useRecoilState(activeBannerAtom);
@@ -91,7 +91,7 @@ function App() {
             </Suspense>
           ),
         },
-      
+
         {
           path: "/clients",
           element: (
@@ -102,7 +102,22 @@ function App() {
                 </p>
               }
             >
-              {token ? <Clients   /> : <SignInSignUp />}
+              {token ? <Clients /> : <SignInSignUp />}
+            </Suspense>
+          ),
+        },
+
+        {
+          path: "/attendance",
+          element: (
+            <Suspense
+              fallback={
+                <p className="h-screen text-center w-full grid place-items-center text-white">
+                  Loading....
+                </p>
+              }
+            >
+              {token ? <Attendance /> : <SignInSignUp />}
             </Suspense>
           ),
         },
@@ -116,7 +131,7 @@ function App() {
                 </p>
               }
             >
-              {token ? <ClientWorks   /> : <SignInSignUp />}
+              {token ? <ClientWorks /> : <SignInSignUp />}
             </Suspense>
           ),
         },
@@ -148,7 +163,7 @@ function App() {
             </Suspense>
           ),
         },
-        
+
         {
           path: "/projects",
           element: (

@@ -13,6 +13,7 @@ const Profile = () => {
       <div className="text-center m-4">
         <Typography variant="h3">{user.userName}</Typography>
         <p className="">{user.email}</p>
+        
       </div>
     </div>
   );

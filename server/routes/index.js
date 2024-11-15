@@ -11,6 +11,7 @@ import headerRoutes from './headerRoutes.js';
 import statusRoutes from './statusRoutes.js';
 import priorityRoutes from './priorityRoutes.js';
 import clientRoutes from './clientRoutes.js';
+import attendanceRoute from './attendanceRoutes.js';
 
 
 const routes = (app)=>{
@@ -26,6 +27,7 @@ const routes = (app)=>{
     app.use('/api/status',authMiddleware,statusRoutes());
     app.use('/api/priority',authMiddleware,priorityRoutes());
     app.use('/api/client',authMiddleware,clientRoutes());
+    app.use('/api/attendance',authMiddleware,attendanceRoute());
 }
 
 export default routes

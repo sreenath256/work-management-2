@@ -15,7 +15,7 @@ const TodaysWork = () => {
         const res = await baseURL.get("/tasks/getProjectByPeople");
 
         setSelectedProject(res.data.data);
-        console.log(res.data.data);
+        console.log("Todays works response",res);
       } catch (err) {
         toast.error(err.message);
       } finally {
