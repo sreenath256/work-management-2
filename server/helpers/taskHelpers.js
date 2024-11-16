@@ -9,18 +9,9 @@ const taskHelpers = {
 
     const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
-
     const date = endOfDay.toISOString()
 
-
-
-
-
-
-
-    return await SubTaskModel.find({
-      dueDate: date
-    });
+    return await SubTaskModel.find();
   },
   addTask: async (taskData) => {
     const newTask = new TaskModel(taskData)
