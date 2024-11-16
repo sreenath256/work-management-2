@@ -251,7 +251,6 @@ const punchInControllers = () => {
 
     const getTodayAttendance = async (req, res) => {
 
-        console.log("From ");
         
         try {
             // Get today's date range

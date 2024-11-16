@@ -213,40 +213,95 @@ const taskControllers = () => {
         }
     }
 
+    // const getProjectByPeople = async (req, res) => {
+    //     try {
+    //         const { id } = req.payload;
+    //         console.log("Requested user id", id);
+
+    //         // Pass projectId, userId, and today as the due date to the helper function
+    //         const projectResponse = await taskHelpers.getProjectByPeople();
+
+    //         const people = await UserModel.find({ role: configKeys.JWT_USER_ROLE }, { _id: 1 }).sort({ isActive: 1 });
+
+
+
+    //         // Convert to an array of _id values
+    //         const peopleIds = people.map(person => person._id);
+
+
+
+    //         const result = [];
+
+    //         for (const personId of peopleIds) {
+    //             const filteredTasks = projectResponse.filter(item => item.people.includes(personId));
+    //             result.push({ personId, tasks: filteredTasks });
+    //         }
+
+
+
+
+    //         if (projectResponse.length) {
+    //             return res.status(200).json({ status: true, data: result });
+    //         }
+    //         return res.status(200).json({ status: false, message: "No tasks found for this user in the project with today's due date" });
+    //     } catch (error) {
+    //         console.error("Error in getSingleProjectIndividual:", error);
+    //         return res.status(500).json({ status: false, message: "Internal error" });
+    //     }
+    // };
+
+
     const getProjectByPeople = async (req, res) => {
         try {
             const { id } = req.payload;
             console.log("Requested user id", id);
-
-            // Pass projectId, userId, and today as the due date to the helper function
-            const projectResponse = await taskHelpers.getProjectByPeople();
-
-            const people = await UserModel.find({ role: configKeys.JWT_USER_ROLE }, { _id: 1 }).sort({ isActive: 1 });
-
-
-
+    
+            // Pass required parameters to helper function
+            const projectResponse = await taskHelpers.getProjectByPeople(id);
+            console.log("Project response:", projectResponse); // Add logging
+    
+            // Only proceed with user lookup if we have projects
+            if (!projectResponse || !projectResponse.length) {
+                return res.status(200).json({ 
+                    status: false, 
+                    message: "No tasks found for this user in the project with today's due date" 
+                });
+            }
+    
+            const people = await UserModel.find(
+                { role: configKeys.JWT_USER_ROLE }, 
+                { _id: 1 }
+            ).sort({ isActive: 1 });
+    
+            if (!people || !people.length) {
+                return res.status(200).json({
+                    status: false,
+                    message: "No users found with the specified role"
+                });
+            }
+    
             // Convert to an array of _id values
             const peopleIds = people.map(person => person._id);
-
-
-
-            const result = [];
-
-            for (const personId of peopleIds) {
-                const filteredTasks = projectResponse.filter(item => item.people.includes(personId));
-                result.push({ personId, tasks: filteredTasks });
-            }
-
-
-
-
-            if (projectResponse.length) {
-                return res.status(200).json({ status: true, data: result });
-            }
-            return res.status(200).json({ status: false, message: "No tasks found for this user in the project with today's due date" });
+            
+            const result = peopleIds.map(personId => ({
+                personId,
+                tasks: projectResponse.filter(item => 
+                    item.people && item.people.includes(personId)
+                )
+            }));
+    
+            return res.status(200).json({ 
+                status: true, 
+                data: result 
+            });
+    
         } catch (error) {
-            console.error("Error in getSingleProjectIndividual:", error);
-            return res.status(500).json({ status: false, message: "Internal error" });
+            console.error("Error in getProjectByPeople:", error);
+            return res.status(500).json({ 
+                status: false, 
+                message: "Internal error",
+                error: error.message // Include error message in development
+            });
         }
     };
 
